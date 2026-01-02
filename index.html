@@ -1,1 +1,119 @@
-A
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setting Daya ESP32</title>
+
+  <!-- Firebase SDK v9 COMPAT (tanpa module) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .box {
+      background: #020617;
+      padding: 30px;
+      border-radius: 14px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    .value {
+      font-size: 48px;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+
+    input[type=range] {
+      width: 100%;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+    <h2>SETTING DAYA</h2>
+
+    <div class="value">
+      <span id="powerValue">0</span>%
+    </div>
+
+    <input
+      type="range"
+      min="0"
+      max="100"
+      value="0"
+      id="powerSlider"
+    >
+
+    <div class="status" id="dbStatus">Firebase: connecting...</div>
+  </div>
+
+<script>
+  /************ FIREBASE CONFIG ************/
+  var firebaseConfig = {
+ apiKey: "AIzaSyCL571zTJq-uSUIB7kKq_i47xTx4EY4HD4",
+  authDomain: "cpap-deb50.firebaseapp.com",
+  databaseURL: "https://cpap-deb50-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "cpap-deb50",
+  storageBucket: "cpap-deb50.firebasestorage.app",
+  messagingSenderId: "863398125120",
+  appId: "1:863398125120:web:3aeeba1ffa0e5867a989a5"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  var database = firebase.database();
+
+  /************ ELEMENT ************/
+  var slider = document.getElementById("powerSlider");
+  var valueText = document.getElementById("powerValue");
+  var dbStatus = document.getElementById("dbStatus");
+
+  /************ SLIDER → FIREBASE ************/
+  slider.oninput = function () {
+    var val = parseInt(this.value);
+    valueText.innerHTML = val;
+    database.ref("power").set(val);
+  };
+
+  /************ FIREBASE → SLIDER ************/
+  database.ref("power").on("value", function(snapshot) {
+    if (snapshot.exists()) {
+      var val = snapshot.val();
+      slider.value = val;
+      valueText.innerHTML = val;
+      dbStatus.innerHTML = "Firebase: online";
+    }
+  }, function(error) {
+    dbStatus.innerHTML = "Firebase error";
+    console.error(error);
+  });
+</script>
+
+</body>
+</html>
